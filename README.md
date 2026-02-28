@@ -65,6 +65,10 @@ Click the badge in the menu bar to access:
 | **About**          | Version info                                            |
 | **Quit**           | Stop the app                                            |
 
+## Version
+
+Current version: **1.0.0**
+
 ## License
 
 MIT

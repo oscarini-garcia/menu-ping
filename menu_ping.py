@@ -1,6 +1,8 @@
 #!/opt/homebrew/bin/python3.10
 """Menu bar ping monitor for macOS."""
 
+import os
+import plistlib
 import subprocess
 import threading
 import rumps
@@ -15,6 +17,8 @@ DEFAULT_HOST = "8.8.8.8"
 DEFAULT_GOOD = 100    # ms — green threshold
 DEFAULT_WARN = 200    # ms — yellow threshold
 PING_INTERVAL = 2     # seconds
+BUNDLE_ID = "com.oscar.menuping"
+LAUNCH_AGENT_PATH = os.path.expanduser(f"~/Library/LaunchAgents/{BUNDLE_ID}.plist")
 
 HOSTS = [
     ("Google DNS — 8.8.8.8", "8.8.8.8"),
@@ -105,8 +109,14 @@ class PingApp(rumps.App):
         thresh_menu.add(rumps.separator)
         thresh_menu.add(rumps.MenuItem("Custom…", callback=self._custom_threshold))
 
+        # Start at Login toggle
+        self.login_item = rumps.MenuItem("Start at Login", callback=self._toggle_login)
+        self.login_item.state = os.path.exists(LAUNCH_AGENT_PATH)
+
         self.menu = [
             target_menu, thresh_menu, rumps.separator,
+            self.login_item,
+            rumps.separator,
             rumps.MenuItem("About", callback=self._about),
             rumps.separator,
             rumps.MenuItem("Quit", callback=self._quit),
@@ -218,6 +228,44 @@ class PingApp(rumps.App):
                         item.state = False
                 except ValueError:
                     pass
+
+    @staticmethod
+    def _get_app_path():
+        """Return the path to the running .app bundle, or None."""
+        p = os.path.abspath(__file__)
+        while p != "/":
+            if p.endswith(".app"):
+                return p
+            p = os.path.dirname(p)
+        return None
+
+    def _toggle_login(self, sender):
+        if sender.state:
+            # Remove launch agent
+            try:
+                os.remove(LAUNCH_AGENT_PATH)
+            except FileNotFoundError:
+                pass
+            sender.state = False
+        else:
+            # Create launch agent
+            app_path = self._get_app_path()
+            if app_path is None:
+                rumps.alert(
+                    title="Start at Login",
+                    message="Could not detect the .app bundle path. "
+                            "Please run Menu Ping from the built .app.",
+                )
+                return
+            plist = {
+                "Label": BUNDLE_ID,
+                "ProgramArguments": ["/usr/bin/open", app_path],
+                "RunAtLoad": True,
+            }
+            os.makedirs(os.path.dirname(LAUNCH_AGENT_PATH), exist_ok=True)
+            with open(LAUNCH_AGENT_PATH, "wb") as f:
+                plistlib.dump(plist, f)
+            sender.state = True
 
     def _about(self, _):
         rumps.alert(

@@ -12,6 +12,7 @@ A macOS menu bar app that shows live ping latency as a color-coded badge.
 - Pick a ping target: Google DNS, Cloudflare, Quad9, OpenDNS, localhost, or any custom host
 - Adjustable thresholds: Tight (50/100 ms), Normal (100/200 ms), Relaxed (200/500 ms), or custom
 - Pings every 2 seconds
+- Start at Login toggle — automatically launch on login via macOS LaunchAgent
 - Runs as a menu-bar-only app (no Dock icon)
 
 ## Requirements
@@ -58,10 +59,11 @@ Click the badge in the menu bar to access:
 
 | Menu Item      | Description                                      |
 |----------------|--------------------------------------------------|
-| **Target**     | Choose the host to ping (or enter a custom one)  |
-| **Thresholds** | Set green/yellow latency thresholds               |
-| **About**      | Version info                                      |
-| **Quit**       | Stop the app                                      |
+| **Target**         | Choose the host to ping (or enter a custom one)        |
+| **Thresholds**     | Set green/yellow latency thresholds                     |
+| **Start at Login** | Toggle auto-launch on login (requires built .app)       |
+| **About**          | Version info                                            |
+| **Quit**           | Stop the app                                            |
 
 ## License
 

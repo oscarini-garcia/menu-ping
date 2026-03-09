@@ -43,8 +43,20 @@ FG_COLOR = NSColor.whiteColor()
 FONT = NSFont.monospacedDigitSystemFontOfSize_weight_(11, 0.6)
 
 
+def _measure_text(text):
+    attrs = {NSForegroundColorAttributeName: FG_COLOR, NSFontAttributeName: FONT}
+    s = NSAttributedString.alloc().initWithString_attributes_(text, attrs)
+    return s.size()
+
+# Pre-compute a fixed badge width from the widest expected label
+_max_size = _measure_text("9999ms")
+BADGE_PAD_X, BADGE_PAD_Y = 6, 2
+BADGE_W = _max_size.width + BADGE_PAD_X * 2
+BADGE_H = _max_size.height + BADGE_PAD_Y * 2
+
+
 def make_badge_image(text, color_name):
-    """Create a small rounded-rect badge image with colored bg and white text."""
+    """Create a fixed-width rounded-rect badge image with colored bg and white text."""
     attrs = {
         NSForegroundColorAttributeName: FG_COLOR,
         NSFontAttributeName: FONT,
@@ -52,9 +64,8 @@ def make_badge_image(text, color_name):
     attr_str = NSAttributedString.alloc().initWithString_attributes_(text, attrs)
     text_size = attr_str.size()
 
-    pad_x, pad_y = 6, 2
-    w = text_size.width + pad_x * 2
-    h = text_size.height + pad_y * 2
+    w = BADGE_W
+    h = BADGE_H
 
     img = NSImage.alloc().initWithSize_(NSMakeSize(w, h))
     img.lockFocus()
@@ -65,7 +76,8 @@ def make_badge_image(text, color_name):
     path = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(rect, 4, 4)
     path.fill()
 
-    attr_str.drawAtPoint_((pad_x, pad_y))
+    x = (w - text_size.width) / 2
+    attr_str.drawAtPoint_((x, BADGE_PAD_Y))
 
     img.unlockFocus()
     img.setTemplate_(False)
@@ -271,7 +283,7 @@ class PingApp(rumps.App):
         rumps.alert(
             title="Menu Ping",
             message=(
-                "Version 1.0.0\n\n"
+                "Version 1.1.0\n\n"
                 "A tiny menu bar app that pings so you don't have to.\n\n"
                 "Because refreshing speedtest.net 47 times a day "
                 "wasn't cutting it anymore."

@@ -8,7 +8,7 @@ A macOS menu bar app that shows live ping latency as a color-coded badge.
 
 ## Features
 
-- Color-coded rounded badge in the menu bar with the ping time in ms
+- Fixed-width color-coded badge in the menu bar — no icon shifting as values change
 - Pick a ping target: Google DNS, Cloudflare, Quad9, OpenDNS, localhost, or any custom host
 - Adjustable thresholds: Tight (50/100 ms), Normal (100/200 ms), Relaxed (200/500 ms), or custom
 - Pings every 2 seconds
